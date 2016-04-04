@@ -1,0 +1,33 @@
+{
+  "name": "weather-reactjs",
+  "version": "1.0.0",
+  "description": "-----\r A demo Weather application (React.js)",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run serve | npm run dev",
+    "serve": "http-server -p 3000",
+    "dev": "webpack-dev-server --progress --colors --port 3001"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zundux/weather-react.git"
+  },
+  "author": "zundux",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^0.14.2"
+  },
+  "devDependencies": {
+    "jsx-loader": "^0.13.2",
+    "webpack": "^1.12.3",
+    "webpack-dev-server": "^1.12.1"
+  },
+  "bugs": {
+    "url": "https://github.com/zundux/weather-react/issues"
+  },
+  "homepage": "https://github.com/zundux/weather-react#readme",
+  "keywords": [
+    "weather",
+    "reactjs"
+  ]
+}
