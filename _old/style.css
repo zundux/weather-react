@@ -5,17 +5,27 @@ html, body {
   padding: 0;
 }
 
-.app-wrapper,
-.app-container {
+html {
+  font-size: 10px;
+  font-family: sans-serif;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.42857143;
+  color: #2c3e50;
+  background-color: #ffffff;
+}
+
+.b-app__wrapper,
+.b-app__container {
   width: 100%;
   height: 100%;
 }
 
-.panel__panel {
-  border-radius: 0 !important;
-}
-
-.sidebar {
+.b-sidebar {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -23,14 +33,31 @@ html, body {
   z-index: 99;
 }
 
+.b-sidebar__panel {
+  width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  border-color: #ecf0f1;
+  background-color: #ffffff;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.b-sidebar__panel__body{
+  padding: 15px;
+}
+
 form .input-group {
   width: 66%;
 }
 
 .panel {
-  width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+
+}
+
+.panel__panel {
+  border-radius: 0 !important;
 }
 
 .b-weather {

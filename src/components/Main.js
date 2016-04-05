@@ -1,52 +1,47 @@
-'use strict';
+require("normalize.css/normalize.css");
+require("styles/App.css");
 
-var WeatherApp = React.createClass({
+import React from "react";
+import CityForecast from "./CityForecast";
 
-  map: {},
-  marker: {},
-  temperatureScales: {
-    kelvin: {name: 'Kelvin', symbol: 'K'},
-    celsius: {name: 'Celsius', symbol: 'C'},
-    fahrenheit: {name: 'Fahrenheit', symbol: 'F'}
-  },
+/* global $, google */
 
-  config: {
-    initialLat: 56.01,
-    initialLon: 92.79,
-    mapZoomLevel: 11,
-    openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf",
-  },
+class WeatherApp extends React.Component {
 
-  getInitialState: function () {
-    return {
-      lat: this.config.initialLat,
-      lon: this.config.initialLon,
-      temperatureScale: 0
-    };
-  },
+  // state = {
+  //   lat: null,
+  //   lon: null,
+  //   temperatureScale: 0,
+  //   showResults: false
+  // }
+
+  componentDidMount() {
+    this.initMap();
+    this.updateState(null, this.state.lat, this.state.lon);
+  }
 
   /**
    * Request data from the API
    */
-  getData: function (locationName, lat, lon) {
+  getData(locationName, lat, lon) {
 
     var data;
 
     if (locationName !== null) {
-      data = $.get('http://api.openweathermap.org/data/2.5/weather?q=' + locationName + '&APPID=' + this.config.openWeatherAPIKey);
+      data = $.get("http://api.openweathermap.org/data/2.5/weather?q=" + locationName + "&APPID=" + this.config.openWeatherAPIKey);
       return data;
     }
 
-    data = $.get('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&APPID=' + this.config.openWeatherAPIKey);
+    data = $.get("http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + this.config.openWeatherAPIKey);
     return data;
-  },
+  }
 
-  updateState: function (locationName, lat, lon) {
+  updateState(locationName, lat, lon) {
     this.getData(locationName, lat, lon)
       .then(this.getDataSuccess);
-  },
+  }
 
-  getDataSuccess: function (data) {
+  getDataSuccess(data) {
     var mappedData = {
       lat: data.coord.lat,
       lon: data.coord.lon,
@@ -60,11 +55,13 @@ var WeatherApp = React.createClass({
       temp: this.prepareTemperature(data.main.temp, this.state.temperatureScale),
       temp_max: this.prepareTemperature(data.main.temp_max, this.state.temperatureScale),
       temp_min: this.prepareTemperature(data.main.temp_min, this.state.temperatureScale),
-      icon: 'http://openweathermap.org/img/w/' + data.weather[0].icon + '.png'
+      icon: "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png",
+
+      showResults: true
     };
 
     this.setState(mappedData, this.updateMap);
-  },
+  }
 
   /**
    * Return temperature based on selected scale
@@ -73,7 +70,7 @@ var WeatherApp = React.createClass({
    * @param scaleType
    * @returns number
    */
-  prepareTemperature: function (kelvinDeg, scaleType) {
+  prepareTemperature(kelvinDeg, scaleType) {
     if (kelvinDeg === undefined) {
       return 0;
     }
@@ -87,47 +84,48 @@ var WeatherApp = React.createClass({
     }
 
     return kelvinDeg;
-  },
+  }
 
-  prepareTimestamp: function (seconds) {
+  static prepareTimestamp(seconds) {
     if (seconds === undefined) {
-      return '';
+      return "";
     }
 
     return new Date(seconds * 1000)
-  },
+  }
 
-  locationSearchHandler: function () {
+  locationSearchHandler() {
     var locationName = this.refs.newLocation.getDOMNode().value;
 
-    if (locationName !== '') {
+    if (locationName !== "") {
       this.updateState(locationName, null, null);
     }
-  },
+  }
 
-  geolocationSearchHandler: function () {
-    navigator.geolocation.getCurrentPosition(this.geolocationSearchSuccess, this.geolocationSearchError);
-  },
+  geolocationSearchHandler() {
+    navigator.geolocation.getCurrentPosition(
+      this.geolocationSearchSuccess, this.geolocationSearchError);
+  }
 
-  geolocationSearchSuccess: function (position) {
+  geolocationSearchSuccess(position) {
     var lat = position.coords.latitude,
       lon = position.coords.longitude;
 
     this.updateState(null, lat, lon);
-  },
+  }
 
-  geolocationSearchError: function (error) {
-    if (error.message == 'User denied Geolocation') {
-      alert('Please enable location services');
+  static geolocationSearchError(error) {
+    if (error.message == "User denied Geolocation") {
+      alert("Please enable location services");
     }
-  },
+  }
 
-  formSubmit: function (e) {
+  formSubmit(e) {
     e.preventDefault();
-    this.refs.newLocation.getDOMNode().value = '';
-  },
+    this.refs.newLocation.getDOMNode().value = "";
+  }
 
-  initMap: function () {
+  initMap() {
     this.map = new google.maps.Map(this.refs.map.getDOMNode(), {
       zoom: this.config.mapZoomLevel,
       disableDefaultUI: true,
@@ -141,24 +139,24 @@ var WeatherApp = React.createClass({
 
     this.marker.setAnimation(google.maps.Animation.DROP);
 
-    google.maps.event.addListener(this.map, 'click', this.mapUpdateHandler);
-    // google.maps.event.addListener(this.marker, 'dragend', this.mapUpdateHandler);
-    this.map.addListener('zoom_changed', this.mapZoomChangedHandler);
-  },
+    google.maps.event.addListener(this.map, "click", this.mapUpdateHandler);
+    // google.maps.event.addListener(this.marker, "dragend", this.mapUpdateHandler);
+    this.map.addListener("zoom_changed", this.mapZoomChangedHandler);
+  }
 
-  mapUpdateHandler: function (event) {
+  mapUpdateHandler(event) {
     var latLng = event.latLng,
       lat = latLng.lat(),
       lng = latLng.lng();
 
     this.updateState(null, lat, lng)
-  },
+  }
 
-  mapZoomChangedHandler: function () {
+  mapZoomChangedHandler() {
     this.mapZoomLevel = this.map.getZoom();
-  },
+  }
 
-  updateMap: function () {
+  updateMap() {
     var coordinates = new google.maps.LatLng(this.state.lat, this.state.lon);
 
     window.setTimeout(function () {
@@ -170,6 +168,7 @@ var WeatherApp = React.createClass({
           || document.body.clientWidth,
         rightOffset = Math.abs(sidebarWidth - windowWidth),
         mapCenter = this.getOffsetCenter(coordinates, -rightOffset, 0);
+
       console.log(rightOffset, windowWidth, sidebarWidth);
 
       if (mapCenter) {
@@ -177,7 +176,7 @@ var WeatherApp = React.createClass({
       }
 
     }.bind(this), 300);
-  },
+  }
 
   /**
    * Return new center for map with applied offsets.
@@ -188,7 +187,7 @@ var WeatherApp = React.createClass({
    * @param offsety - is the distance you want that point to move upwards, in pixels
    * @returns {*}
    */
-  getOffsetCenter: function (latlng, offsetx, offsety) {
+  getOffsetCenter(latlng, offsetx, offsety) {
 
     if (latlng === undefined) {
       return false;
@@ -203,19 +202,18 @@ var WeatherApp = React.createClass({
       );
 
     return this.map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
-  },
+  }
 
-  componentDidMount: function () {
-    this.initMap();
-    this.updateState(null, this.state.lat, this.state.lon);
-  },
+  showResults() {
+    return this.state.showResults;
+  }
 
-  render: function () {
+  render() {
     return (
-      <div className="app-container">
-        <div className="sidebar" ref="sidebarPanel">
-          <div className="panel panel-default">
-            <div className="sidebar__panel panel-body">
+      <div className="b-app__container">
+        <div className="b-sidebar" ref="sidebarPanel">
+          <div className="b-sidebar__panel panel panel-default">
+            <div className="b-sidebar__panel panel-body">
 
               <form onSubmit={this.formSubmit}>
                 <div className="input-group pull-left">
@@ -237,48 +235,34 @@ var WeatherApp = React.createClass({
 
             </div>
             <div className="panel-heading text-center">
-              <span className="text-muted">
-                Enter a place name below, drag the marker
-                click directly on the map
-              </span>
+               <span className="text-muted">
+                 Enter a place name below, drag the marker
+                 click directly on the map
+               </span>
             </div>
-            <WeatherDetails {...this.state}/>
+            { this.showResults() ? <CityForecast {...this.state}/> : null }
           </div>
         </div>
         <div ref="map" className="b-map"></div>
       </div>
     );
   }
+}
 
-});
+WeatherApp.map = {};
+WeatherApp.marker = {};
+WeatherApp.temperatureScales = {
+  kelvin: {name: "Kelvin", symbol: "K"},
+  celsius: {name: "Celsius", symbol: "C"},
+  fahrenheit: {name: "Fahrenheit", symbol: "F"}
+};
+WeatherApp.config = {
+  initialLat: 56.01,
+  initialLon: 92.79,
+  mapZoomLevel: 11,
+  openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
+};
 
-var WeatherDetails = React.createClass({
-  render: function () {
-    return (
-      <div className="b-weather panel-heading">
-        <div className="b-weather__city text-muted"><strong>{this.props.location}</strong>
-          &nbsp;[{this.props.lat}, {this.props.lon}]
-        </div>
-        <div className="b-weather__icon">
-          <img src={this.props.icon}/>
-        </div>
-        <div>
-          <div className="b-weather__atmosphere-status text-muted">{this.props.weather}</div>
-          <div className="b-weather__atmosphere-status text-muted">Humidity: {this.props.humidity} %</div>
-          <div className="b-weather__atmosphere-status text-muted">Pressure: {this.props.pressure} hpa</div>
-          <div className="b-weather__atmosphere-status text-muted">Temp: {this.props.temp} (
-            min: {this.props.temp_min}, max: {this.props.temp_max})
-          </div>
-        </div>
+WeatherApp.defaultProps = {};
 
-        <div>
-          <div className="b-weather__atmosphere-status text-muted">Sunrise: {this.props.sunrise}</div>
-          <div className="b-weather__atmosphere-status text-muted">Sunset: {this.props.sunset}</div>
-        </div>
-        <div className="b-weather__timestamp text-muted">Updated as of {this.props.timestamp}</div>
-      </div>
-    )
-  }
-});
-
-React.render(<WeatherApp />, document.getElementById('weather-forecast'));
+export default WeatherApp;
