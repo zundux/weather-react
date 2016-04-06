@@ -1,19 +1,19 @@
 /* eslint no-console:0 */
-'use strict';
+"use strict";
 
-require('core-js/fn/object/assign');
+require("core-js/fn/object/assign");
 
-const webpack = require('webpack');
-const webpackDevServer = require('webpack-dev-server');
-const config = require('./webpack.config');
-const open = require('open');
+const webpack = require("webpack");
+const webpackDevServer = require("webpack-dev-server");
+const config = require("./webpack.config");
+const open = require("open");
 
 new webpackDevServer(webpack(config), config.devServer)
-  .listen(config.port, 'localhost', (err) => {
+  .listen(config.port, "localhost", (err) => {
     if (err) {
       console.log(err);
     }
-    console.log('Listening at localhost:' + config.port);
-    console.log('Opening your system browser...');
-    open('http://localhost:' + config.port + '/webpack-dev-server/');
+    console.log("Listening at localhost:" + config.port);
+    console.log("Opening your system browser...");
+    // open("http://localhost:" + config.port + "/webpack-dev-server/");
   });

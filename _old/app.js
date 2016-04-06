@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /* global React, google */
 
 var WeatherApp = React.createClass({
@@ -6,16 +6,16 @@ var WeatherApp = React.createClass({
   map: {},
   marker: {},
   temperatureScales: {
-    kelvin: {name: 'Kelvin', symbol: 'K'},
-    celsius: {name: 'Celsius', symbol: 'C'},
-    fahrenheit: {name: 'Fahrenheit', symbol: 'F'}
+    kelvin: {name: "Kelvin", symbol: "K"},
+    celsius: {name: "Celsius", symbol: "C"},
+    fahrenheit: {name: "Fahrenheit", symbol: "F"}
   },
 
   config: {
     initialLat: 56.01,
     initialLon: 92.79,
     mapZoomLevel: 11,
-    openWeatherAPIKey: '8500593fcdaa73da9938b3bd5a9978bf'
+    openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
   },
 
   getInitialState: function () {
@@ -36,11 +36,11 @@ var WeatherApp = React.createClass({
     var data;
 
     if (locationName !== null) {
-      data = $.get('http://api.openweathermap.org/data/2.5/weather?q=' + locationName + '&APPID=' + this.config.openWeatherAPIKey);
+      data = $.get("http://api.openweathermap.org/data/2.5/weather?q=" + locationName + "&APPID=" + this.config.openWeatherAPIKey);
       return data;
     }
 
-    data = $.get('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&APPID=' + this.config.openWeatherAPIKey);
+    data = $.get("http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + this.config.openWeatherAPIKey);
     return data;
   },
 
@@ -63,7 +63,7 @@ var WeatherApp = React.createClass({
       temp: this.prepareTemperature(data.main.temp, this.state.temperatureScale),
       temp_max: this.prepareTemperature(data.main.temp_max, this.state.temperatureScale),
       temp_min: this.prepareTemperature(data.main.temp_min, this.state.temperatureScale),
-      icon: 'http://openweathermap.org/img/w/' + data.weather[0].icon + '.png',
+      icon: "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png",
 
       showResults: true
     };
@@ -96,7 +96,7 @@ var WeatherApp = React.createClass({
 
   prepareTimestamp: function (seconds) {
     if (seconds === undefined) {
-      return '';
+      return "";
     }
 
     return new Date(seconds * 1000)
@@ -105,7 +105,7 @@ var WeatherApp = React.createClass({
   locationSearchHandler: function () {
     var locationName = this.refs.newLocation.getDOMNode().value;
 
-    if (locationName !== '') {
+    if (locationName !== "") {
       this.updateState(locationName, null, null);
     }
   },
@@ -123,14 +123,14 @@ var WeatherApp = React.createClass({
   },
 
   geolocationSearchError: function (error) {
-    if (error.message == 'User denied Geolocation') {
-      alert('Please enable location services');
+    if (error.message == "User denied Geolocation") {
+      alert("Please enable location services");
     }
   },
 
   formSubmit: function (e) {
     e.preventDefault();
-    this.refs.newLocation.getDOMNode().value = '';
+    this.refs.newLocation.getDOMNode().value = "";
   },
 
   initMap: function () {
@@ -147,9 +147,9 @@ var WeatherApp = React.createClass({
 
     this.marker.setAnimation(google.maps.Animation.DROP);
 
-    google.maps.event.addListener(this.map, 'click', this.mapUpdateHandler);
-    // google.maps.event.addListener(this.marker, 'dragend', this.mapUpdateHandler);
-    this.map.addListener('zoom_changed', this.mapZoomChangedHandler);
+    google.maps.event.addListener(this.map, "click", this.mapUpdateHandler);
+    // google.maps.event.addListener(this.marker, "dragend", this.mapUpdateHandler);
+    this.map.addListener("zoom_changed", this.mapZoomChangedHandler);
   },
 
   mapUpdateHandler: function (event) {
@@ -223,32 +223,32 @@ var WeatherApp = React.createClass({
 
   render: function () {
     return (
-      <div className='b-app__container'>
-        <div className='b-sidebar' ref='sidebarPanel'>
-          <div className='b-sidebar__panel panel panel-default-'>
-            <div className='b-sidebar__panel panel-body'>
+      <div className="b-app__container">
+        <div className="b-sidebar" ref="sidebarPanel">
+          <div className="b-sidebar__panel panel panel-default-">
+            <div className="b-sidebar__panel panel-body">
 
               <form onSubmit={this.formSubmit}>
-                <div className='input-group pull-left'>
-                  <input ref='newLocation'
-                         type='text' className='form-control'
-                         placeholder='Enter a town/city name'
+                <div className="input-group pull-left">
+                  <input ref="newLocation"
+                         type="text" className="form-control"
+                         placeholder="Enter a town/city name"
                   />
-                  <span className='input-group-btn'>
-                      <button type='submit' className='btn btn-default'
+                  <span className="input-group-btn">
+                      <button type="submit" className="btn btn-default"
                               onClick={this.locationSearchHandler}>Search</button>
                   </span>
                 </div>
-                <button className='btn btn-default pull-right'
+                <button className="btn btn-default pull-right"
                         onClick={this.geolocationSearchHandler}>
-                  <span className='glyphicon glyphicon-map-marker' aria-hidden='true'></span>
+                  <span className="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
                   Use my location
                 </button>
               </form>
 
             </div>
-            <div className='panel-heading text-center'>
-               <span className='text-muted'>
+            <div className="panel-heading text-center">
+               <span className="text-muted">
                  Enter a place name below, drag the marker
                  click directly on the map
                </span>
@@ -256,7 +256,7 @@ var WeatherApp = React.createClass({
             { this.showResults() ? <WeatherDetails {...this.state}/> : null }
           </div>
         </div>
-        <div ref='map' className='b-map'></div>
+        <div ref="map" className="b-map"></div>
       </div>
     );
   }
@@ -266,30 +266,30 @@ var WeatherApp = React.createClass({
 var WeatherDetails = React.createClass({
   render: function () {
     return (
-      <div className='b-weather panel-heading'>
-        <div className='b-weather__city text-muted'><strong>{this.props.location}</strong>
+      <div className="b-weather panel-heading">
+        <div className="b-weather__city text-muted"><strong>{this.props.location}</strong>
           &nbsp;[{this.props.lat}, {this.props.lon}]
         </div>
-        <div className='b-weather__icon'>
+        <div className="b-weather__icon">
           <img src={this.props.icon}/>
         </div>
         <div>
-          <div className='b-weather__atmosphere-status text-muted'>{this.props.weather}</div>
-          <div className='b-weather__atmosphere-status text-muted'>Humidity: {this.props.humidity} %</div>
-          <div className='b-weather__atmosphere-status text-muted'>Pressure: {this.props.pressure} hpa</div>
-          <div className='b-weather__atmosphere-status text-muted'>Temp: {this.props.temp} (
+          <div className="b-weather__atmosphere-status text-muted">{this.props.weather}</div>
+          <div className="b-weather__atmosphere-status text-muted">Humidity: {this.props.humidity} %</div>
+          <div className="b-weather__atmosphere-status text-muted">Pressure: {this.props.pressure} hpa</div>
+          <div className="b-weather__atmosphere-status text-muted">Temp: {this.props.temp} (
             min: {this.props.temp_min}, max: {this.props.temp_max})
           </div>
         </div>
 
         <div>
-          <div className='b-weather__atmosphere-status text-muted'>Sunrise: {this.props.sunrise}</div>
-          <div className='b-weather__atmosphere-status text-muted'>Sunset: {this.props.sunset}</div>
+          <div className="b-weather__atmosphere-status text-muted">Sunrise: {this.props.sunrise}</div>
+          <div className="b-weather__atmosphere-status text-muted">Sunset: {this.props.sunset}</div>
         </div>
-        <div className='b-weather__timestamp text-muted'>Updated as of {this.props.timestamp}</div>
+        <div className="b-weather__timestamp text-muted">Updated as of {this.props.timestamp}</div>
       </div>
     )
   }
 });
 
-React.render(<WeatherApp />, document.getElementById('app'));
+React.render(<WeatherApp />, document.getElementById("app"));

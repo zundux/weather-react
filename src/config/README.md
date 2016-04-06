@@ -6,8 +6,8 @@ whether your setup runs in dev mode or is built for distribution.
 You can include the configuration into your code like this:
 
 ```javascript
-let react = require('react/addons');
-let config = require('config');
+let react = require("react/addons");
+let config = require("config");
 class MyComponent extends React.Component {
   constructor(props) {
     super(props);

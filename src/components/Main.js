@@ -8,22 +8,50 @@ import CityForecast from "./CityForecast";
 
 class WeatherApp extends React.Component {
 
-  // state = {
-  //   lat: null,
-  //   lon: null,
-  //   temperatureScale: 0,
-  //   showResults: false
-  // }
+   constructor(props) {
+    super(props);
+
+    this.state = {
+      lat: 0,
+      lon: 0,
+      location: "",
+      sunrise: "",
+      sunset: "",
+      timestamp: "",
+      weather: "",
+      humidity: "",
+      pressure: "",
+      temp: "",
+      temp_max: "",
+      temp_min: "",
+      icon: "",
+
+      showResults: true
+    };
+
+    this.map = {};
+    this.marker = {};
+    this.temperatureScales = {
+      kelvin: {name: "Kelvin", symbol: "K"},
+      celsius: {name: "Celsius", symbol: "C"},
+      fahrenheit: {name: "Fahrenheit", symbol: "F"}
+    };
+
+    this.config = {
+      initialLat: 56.01,
+      initialLon: 92.79,
+      mapZoomLevel: 11,
+      openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
+    };
+
+  }
 
   componentDidMount() {
     this.initMap();
-    this.updateState(null, this.state.lat, this.state.lon);
+    this.refreshMap(null, this.state.lat, this.state.lon);
   }
 
-  /**
-   * Request data from the API
-   */
-  getData(locationName, lat, lon) {
+  fetchForecastData(locationName, lat, lon) {
 
     var data;
 
@@ -36,12 +64,26 @@ class WeatherApp extends React.Component {
     return data;
   }
 
-  updateState(locationName, lat, lon) {
-    this.getData(locationName, lat, lon)
-      .then(this.getDataSuccess);
+  refreshMap(locationName, lat, lon) {
+    this.fetchForecastData(locationName, lat, lon)
+      .then(this.fetchForecastDataSuccess.bind(this));
   }
 
-  getDataSuccess(data) {
+  prepareTimestamp(seconds) {
+    if (seconds === undefined) {
+      return "";
+    }
+
+    return new Date(seconds * 1000)
+  }
+
+  geolocationSearchError(error) {
+    if (error.message == "User denied Geolocation") {
+      alert("Please enable location services");
+    }
+  }
+
+  fetchForecastDataSuccess(data) {
     var mappedData = {
       lat: data.coord.lat,
       lon: data.coord.lon,
@@ -86,47 +128,33 @@ class WeatherApp extends React.Component {
     return kelvinDeg;
   }
 
-  static prepareTimestamp(seconds) {
-    if (seconds === undefined) {
-      return "";
-    }
-
-    return new Date(seconds * 1000)
-  }
-
   locationSearchHandler() {
-    var locationName = this.refs.newLocation.getDOMNode().value;
+    var locationName = this.refs.newLocation.value;
 
     if (locationName !== "") {
-      this.updateState(locationName, null, null);
+      this.refreshMap(locationName, null, null);
     }
   }
 
   geolocationSearchHandler() {
     navigator.geolocation.getCurrentPosition(
-      this.geolocationSearchSuccess, this.geolocationSearchError);
+      this.geolocationSearchSuccess.bind(this), this.geolocationSearchError.bind(this));
   }
 
   geolocationSearchSuccess(position) {
     var lat = position.coords.latitude,
       lon = position.coords.longitude;
 
-    this.updateState(null, lat, lon);
-  }
-
-  static geolocationSearchError(error) {
-    if (error.message == "User denied Geolocation") {
-      alert("Please enable location services");
-    }
+    this.refreshMap(null, lat, lon);
   }
 
   formSubmit(e) {
     e.preventDefault();
-    this.refs.newLocation.getDOMNode().value = "";
+    this.refs.newLocation.value = "";
   }
 
   initMap() {
-    this.map = new google.maps.Map(this.refs.map.getDOMNode(), {
+    this.map = new google.maps.Map(this.refs.map, {
       zoom: this.config.mapZoomLevel,
       disableDefaultUI: true,
       zoomControl: true
@@ -141,7 +169,7 @@ class WeatherApp extends React.Component {
 
     google.maps.event.addListener(this.map, "click", this.mapUpdateHandler);
     // google.maps.event.addListener(this.marker, "dragend", this.mapUpdateHandler);
-    this.map.addListener("zoom_changed", this.mapZoomChangedHandler);
+    this.map.addListener("zoom_changed", this.mapZoomChangedHandler.bind(this));
   }
 
   mapUpdateHandler(event) {
@@ -149,7 +177,7 @@ class WeatherApp extends React.Component {
       lat = latLng.lat(),
       lng = latLng.lng();
 
-    this.updateState(null, lat, lng)
+    this.refreshMap(null, lat, lng);
   }
 
   mapZoomChangedHandler() {
@@ -162,7 +190,7 @@ class WeatherApp extends React.Component {
     window.setTimeout(function () {
       this.marker.setPosition(coordinates);
 
-      var sidebarWidth = this.refs.sidebarPanel.getDOMNode().offsetWidth,
+      var sidebarWidth = this.refs.sidebarPanel.offsetWidth,
         windowWidth = window.innerWidth
           || document.documentElement.clientWidth
           || document.body.clientWidth,
@@ -204,10 +232,6 @@ class WeatherApp extends React.Component {
     return this.map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
   }
 
-  showResults() {
-    return this.state.showResults;
-  }
-
   render() {
     return (
       <div className="b-app__container">
@@ -215,7 +239,7 @@ class WeatherApp extends React.Component {
           <div className="b-sidebar__panel panel panel-default">
             <div className="b-sidebar__panel panel-body">
 
-              <form onSubmit={this.formSubmit}>
+              <form onSubmit={this.formSubmit.bind(this)}>
                 <div className="input-group pull-left">
                   <input ref="newLocation"
                          type="text" className="form-control"
@@ -223,11 +247,11 @@ class WeatherApp extends React.Component {
                   />
                   <span className="input-group-btn">
                       <button type="submit" className="btn btn-default"
-                              onClick={this.locationSearchHandler}>Search</button>
+                              onClick={this.locationSearchHandler.bind(this)}>Search</button>
                   </span>
                 </div>
                 <button className="btn btn-default pull-right"
-                        onClick={this.geolocationSearchHandler}>
+                        onClick={this.geolocationSearchHandler.bind(this)}>
                   <span className="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
                   Use my location
                 </button>
@@ -240,7 +264,9 @@ class WeatherApp extends React.Component {
                  click directly on the map
                </span>
             </div>
-            { this.showResults() ? <CityForecast {...this.state}/> : null }
+            { this.state.showResults ?
+              <CityForecast {...this.state}/>
+             : null }
           </div>
         </div>
         <div ref="map" className="b-map"></div>
@@ -249,20 +275,7 @@ class WeatherApp extends React.Component {
   }
 }
 
-WeatherApp.map = {};
-WeatherApp.marker = {};
-WeatherApp.temperatureScales = {
-  kelvin: {name: "Kelvin", symbol: "K"},
-  celsius: {name: "Celsius", symbol: "C"},
-  fahrenheit: {name: "Fahrenheit", symbol: "F"}
-};
-WeatherApp.config = {
-  initialLat: 56.01,
-  initialLon: 92.79,
-  mapZoomLevel: 11,
-  openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
-};
-
 WeatherApp.defaultProps = {};
+WeatherApp.propTypes = {};
 
 export default WeatherApp;

@@ -1,8 +1,16 @@
 /* for dev environment*/
+body > .header {
+  position: absolute;
+  bottom: 0;
+  z-index: 9999;
+}
+
 #errors {
   z-index: 9999;
   position: relative;
 }
+
+/* /for development */
 
 
 html, body {
