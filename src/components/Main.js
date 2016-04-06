@@ -3,21 +3,24 @@ require("styles/App.css");
 
 import React from "react";
 import CityForecast from "./CityForecast";
+import Form from "./Form";
+import TemperatureScaleFilter from "./TemperatureScaleList";
 
 /* global $, google */
 
 class WeatherApp extends React.Component {
 
-   constructor(props) {
+  constructor(props) {
     super(props);
 
     this.state = {
       lat: 0,
       lon: 0,
       location: "",
+      timestamp: "",
+      
       sunrise: "",
       sunset: "",
-      timestamp: "",
       weather: "",
       humidity: "",
       pressure: "",
@@ -26,17 +29,12 @@ class WeatherApp extends React.Component {
       temp_min: "",
       icon: "",
 
-      showResults: true
+      showResults: true,
+      scaleType: "celsius"
     };
 
     this.map = {};
     this.marker = {};
-    this.temperatureScales = {
-      kelvin: {name: "Kelvin", symbol: "K"},
-      celsius: {name: "Celsius", symbol: "C"},
-      fahrenheit: {name: "Fahrenheit", symbol: "F"}
-    };
-
     this.config = {
       initialLat: 56.01,
       initialLon: 92.79,
@@ -48,7 +46,7 @@ class WeatherApp extends React.Component {
 
   componentDidMount() {
     this.initMap();
-    this.refreshMap(null, this.state.lat, this.state.lon);
+    this.getForecastData(null, this.state.lat, this.state.lon);
   }
 
   fetchForecastData(locationName, lat, lon) {
@@ -64,23 +62,9 @@ class WeatherApp extends React.Component {
     return data;
   }
 
-  refreshMap(locationName, lat, lon) {
+  getForecastData(locationName, lat, lon) {
     this.fetchForecastData(locationName, lat, lon)
       .then(this.fetchForecastDataSuccess.bind(this));
-  }
-
-  prepareTimestamp(seconds) {
-    if (seconds === undefined) {
-      return "";
-    }
-
-    return new Date(seconds * 1000)
-  }
-
-  geolocationSearchError(error) {
-    if (error.message == "User denied Geolocation") {
-      alert("Please enable location services");
-    }
   }
 
   fetchForecastDataSuccess(data) {
@@ -128,29 +112,36 @@ class WeatherApp extends React.Component {
     return kelvinDeg;
   }
 
-  locationSearchHandler() {
-    var locationName = this.refs.newLocation.value;
-
-    if (locationName !== "") {
-      this.refreshMap(locationName, null, null);
+  prepareTimestamp(seconds) {
+    if (seconds === undefined) {
+      return "";
     }
+
+    return new Date(seconds * 1000)
   }
 
-  geolocationSearchHandler() {
+  handleUseMyLocation(locationName) {
+    this.getForecastData(locationName, null, null);
+  }
+
+  handleCitySearch() {
     navigator.geolocation.getCurrentPosition(
-      this.geolocationSearchSuccess.bind(this), this.geolocationSearchError.bind(this));
+      this.geolocationSearchSuccess.bind(this),
+      this.geolocationSearchError.bind(this)
+    );
   }
 
   geolocationSearchSuccess(position) {
     var lat = position.coords.latitude,
       lon = position.coords.longitude;
 
-    this.refreshMap(null, lat, lon);
+    this.getForecastData(null, lat, lon);
   }
 
-  formSubmit(e) {
-    e.preventDefault();
-    this.refs.newLocation.value = "";
+  geolocationSearchError(error) {
+    if (error.message == "User denied Geolocation") {
+      alert("Please enable location services");
+    }
   }
 
   initMap() {
@@ -177,7 +168,7 @@ class WeatherApp extends React.Component {
       lat = latLng.lat(),
       lng = latLng.lng();
 
-    this.refreshMap(null, lat, lng);
+    this.getForecastData(null, lat, lng);
   }
 
   mapZoomChangedHandler() {
@@ -232,31 +223,20 @@ class WeatherApp extends React.Component {
     return this.map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
   }
 
+  handleCnahgeTemperatureScale(scaleType) {
+    // this.setState({
+    //   scaleType: scaleType
+    // });
+  }
+
   render() {
     return (
       <div className="b-app__container">
         <div className="b-sidebar" ref="sidebarPanel">
           <div className="b-sidebar__panel panel panel-default">
             <div className="b-sidebar__panel panel-body">
-
-              <form onSubmit={this.formSubmit.bind(this)}>
-                <div className="input-group pull-left">
-                  <input ref="newLocation"
-                         type="text" className="form-control"
-                         placeholder="Enter a town/city name"
-                  />
-                  <span className="input-group-btn">
-                      <button type="submit" className="btn btn-default"
-                              onClick={this.locationSearchHandler.bind(this)}>Search</button>
-                  </span>
-                </div>
-                <button className="btn btn-default pull-right"
-                        onClick={this.geolocationSearchHandler.bind(this)}>
-                  <span className="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
-                  Use my location
-                </button>
-              </form>
-
+              <Form onSearchClick={this.handleCitySearch.bind(this)}
+                    onClickUseMyLocation={this.handleUseMyLocation.bind(this)}/>
             </div>
             <div className="panel-heading text-center">
                <span className="text-muted">
@@ -264,9 +244,16 @@ class WeatherApp extends React.Component {
                  click directly on the map
                </span>
             </div>
-            { this.state.showResults ?
-              <CityForecast {...this.state}/>
-             : null }
+            <div className="b-city__wrapper">
+              <TemperatureScaleFilter
+                scaleType={this.state.scaleType}
+                onChange={this.handleCnahgeTemperatureScale.bind(this)}/>
+              <div className="b-city__list">
+                { this.state.showResults ?
+                  <CityForecast {...this.state}/>
+                  : null }
+              </div>
+            </div>
           </div>
         </div>
         <div ref="map" className="b-map"></div>

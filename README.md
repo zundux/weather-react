@@ -13,7 +13,7 @@ Dmitry Selifanov (Zundux)
 ## Build
 - Install dependencies `npm install`
 - Serve it locally `npm start`
-- Go to `http://localhost:3001`
+- Go to `http://localhost:8000`
 
 ### License
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
