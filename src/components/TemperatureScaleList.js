@@ -1,23 +1,41 @@
 import React from "react";
 
 class TemperatureScaleFilter extends React.Component {
+
   constructor(props) {
     super(props);
-    this.temperatureScales = {
-      kelvin: {name: "Kelvin", symbol: "K"},
-      celsius: {name: "Celsius", symbol: "C"},
-      fahrenheit: {name: "Fahrenheit", symbol: "F"}
-    };
   }
 
   handleClick(event) {
-    console.log(arguments);
     this.props.onChange(event);
+  }
+
+  renderItem(scale, index) {
+
+    let classes = "btn btn-default",
+      areaLabel = name + "scale";
+
+    if (scale.id === this.props.scaleType) {
+      classes += " active";
+    }
+
+    return (
+      <button key={index} onClick={this.handleClick.bind(this, scale.id)}
+              type="button"
+              className={classes}
+              aria-label={areaLabel}>
+        {scale.symbol}
+      </button>
+    );
   }
 
   render() {
 
-    let scales = this.temperatureScales.map(this.renderItem.bind(this));
+    let scales = "";
+
+    if (this.props.scales.length) {
+      scales = this.props.scales.map(this.renderItem.bind(this));
+    }
 
     return (
       <div className="btn-toolbar" role="toolbar"
@@ -26,29 +44,11 @@ class TemperatureScaleFilter extends React.Component {
       </div>
     )
   }
-
-  renderItem(scale, index) {
-    let classes = "btn btn-default",
-      handleClick = this.handleClick.bind(this),
-      areaLabel = name + "scale";
-
-    if (index === this.props.scaleType) {
-      classes = +" active";
-    }
-
-    return (
-      <button onClick={handleClick}
-              type="button"
-              className={classes}
-              aria-label={areaLabel}>
-        {scale.symbol}
-      </button>
-    );
-  }
 }
 
 TemperatureScaleFilter.defaultProps = {
-  temperatureScale: "celsius"
+  scaleType: 1, //celsius
+  scales: {}
 };
 
 export default TemperatureScaleFilter;

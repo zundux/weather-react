@@ -18,19 +18,19 @@ class WeatherApp extends React.Component {
       lon: 0,
       location: "",
       timestamp: "",
-      
+
       sunrise: "",
       sunset: "",
       weather: "",
       humidity: "",
       pressure: "",
       temp: "",
-      temp_max: "",
-      temp_min: "",
+      tempMax: "",
+      tempMin: "",
       icon: "",
 
       showResults: true,
-      scaleType: "celsius"
+      scaleType: 1 // celsius
     };
 
     this.map = {};
@@ -42,6 +42,11 @@ class WeatherApp extends React.Component {
       openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
     };
 
+    this.temperatureScales = [
+      {id: 0, name: "kelvin", symbol: "K"},
+      {id: 1, name: "celsius", symbol: "℃"},
+      {id: 2, name: "fahrenheit", symbol: "℉"}
+    ];
   }
 
   componentDidMount() {
@@ -78,38 +83,15 @@ class WeatherApp extends React.Component {
       weather: data.weather[0].description,
       humidity: data.main.humidity,
       pressure: data.main.pressure,
-      temp: this.prepareTemperature(data.main.temp, this.state.temperatureScale),
-      temp_max: this.prepareTemperature(data.main.temp_max, this.state.temperatureScale),
-      temp_min: this.prepareTemperature(data.main.temp_min, this.state.temperatureScale),
+      temp: data.main.temp,
+      tempMax: data.main.temp_max,
+      tempMin: data.main.temp_min,
       icon: "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png",
 
       showResults: true
     };
 
     this.setState(mappedData, this.updateMap);
-  }
-
-  /**
-   * Return temperature based on selected scale
-   *
-   * @param kelvinDeg
-   * @param scaleType
-   * @returns number
-   */
-  prepareTemperature(kelvinDeg, scaleType) {
-    if (kelvinDeg === undefined) {
-      return 0;
-    }
-
-    if (scaleType === this.temperatureScales.celsius) {
-      return kelvinDeg - 273.15;
-    }
-
-    if (scaleType === this.temperatureScales.celsius) {
-      return kelvinDeg * (9 / 5) - 459.67;
-    }
-
-    return kelvinDeg;
   }
 
   prepareTimestamp(seconds) {
@@ -223,10 +205,10 @@ class WeatherApp extends React.Component {
     return this.map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
   }
 
-  handleCnahgeTemperatureScale(scaleType) {
-    // this.setState({
-    //   scaleType: scaleType
-    // });
+  handleChangeTemperatureScale(scaleType) {
+    this.setState({
+      scaleType: scaleType
+    });
   }
 
   render() {
@@ -240,20 +222,35 @@ class WeatherApp extends React.Component {
             </div>
             <div className="panel-heading text-center">
                <span className="text-muted">
-                 Enter a place name below, drag the marker
+                 Enter a place name above,&nbsp;
+                 {/* drag the marker */ }
                  click directly on the map
                </span>
             </div>
-            <div className="b-city__wrapper">
+            <div className="panel-heading">
+              <span className="text-muted">
+               Select temperature scale
+              </span>
               <TemperatureScaleFilter
+                scales={this.temperatureScales}
                 scaleType={this.state.scaleType}
-                onChange={this.handleCnahgeTemperatureScale.bind(this)}/>
+                onChange={this.handleChangeTemperatureScale.bind(this)}/>
+            </div>
+            <div className="b-city__wrapper">
+
               <div className="b-city__list">
                 { this.state.showResults ?
-                  <CityForecast {...this.state}/>
+                  <CityForecast {...this.state} temperatureScales={this.temperatureScales}/>
                   : null }
               </div>
             </div>
+            <ul className="list-group">
+              <li className="list-group-item">Moscow</li>
+              <li className="list-group-item">Istanbul</li>
+              <li className="list-group-item">Madrid</li>
+              <li className="list-group-item">Venice</li>
+              <li className="list-group-item">Saint Petersburg</li>
+            </ul>
           </div>
         </div>
         <div ref="map" className="b-map"></div>
