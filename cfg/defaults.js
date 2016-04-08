@@ -11,6 +11,18 @@ function getDefaultModules() {
       }],
     loaders: [
       {
+        test: /\.js?$/,
+        include: [
+          path.join(__dirname, "/../node_modules/react-native-storage")
+        ],
+        loader: "babel",
+        query: {
+          cacheDirectory: true,
+          presets: ["es2015", "stage-1", "react"],
+          plugins: ["transform-runtime"]
+        }
+      },
+      {
         test: /\.css$/,
         loader: "style-loader!css-loader!postcss-loader"
       },

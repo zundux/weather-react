@@ -15,6 +15,9 @@ module.exports = {
   port: defaultSettings.port,
   debug: true,
   devtool: "eval",
+  externals: {
+    "react-native": {}
+  },
   output: {
     path: path.join(__dirname, "/../dist/assets"),
     filename: "app.js",
