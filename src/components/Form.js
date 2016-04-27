@@ -2,42 +2,49 @@ import React from "react";
 
 class Form extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      name: ""
+    }
+  }
+
   formSubmit(e) {
     e.preventDefault();
     this.refs.newLocation.value = "";
   }
 
-  handleUseMyLocation() {
-    var locationName = this.refs.newLocation.value;
-
-    if (locationName !== "") {
-      this.props.onClickUseMyLocation(locationName, null, null);
-    }
+  handleSearchByName() {
+    this.props.onSearchClick(this.refs.newLocation.value);
   }
 
   render() {
+    let placeholder = "Enter a location name"; // or click directly on map";
+
     return (
       <form onSubmit={this.formSubmit.bind(this)}>
         <div className="input-group pull-left">
           <input ref="newLocation"
-                 type="text" className="form-control"
-                 placeholder="Enter a town/city name"
+                 type="text"
+                 className="form-control"
+                 placeholder={placeholder}
           />
-                    <span className="input-group-btn">
-                        <button type="submit" className="btn btn-default"
-                                onClick={this.props.onSearchClick}>Search</button>
-                    </span>
+          <span className="input-group-btn">
+              <button type="submit" className="btn btn-default"
+                      onClick={this.handleSearchByName.bind(this)}>Search</button>
+          </span>
         </div>
         <button className="btn btn-default pull-right"
-                onClick={this.handleUseMyLocation.bind(this)}>
+                onClick={this.props.onClickUseMyLocation}>
           <span className="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
-          Use my location
+            &nbsp;Use my location
         </button>
       </form>
     )
   }
 }
 
-Form.defaultProps = {};
+// Form.defaultProps = {};
 
 export default Form;

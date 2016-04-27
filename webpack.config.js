@@ -11,7 +11,7 @@ var env;
 if (args._.length > 0 && args._.indexOf("start") !== -1) {
   env = "test";
 } else if (args.env) {
-  env = args.env;
+  env = args.env
 } else {
   env = "dev";
 }
@@ -25,7 +25,7 @@ process.env.REACT_WEBPACK_ENV = env;
 function buildConfig(wantedEnv) {
   let isValid = wantedEnv && wantedEnv.length > 0 && allowedEnvs.indexOf(wantedEnv) !== -1;
   let validEnv = isValid ? wantedEnv : "dev";
-  
+
   return require(path.join(__dirname, "cfg/" + validEnv));
 }
 

@@ -14,8 +14,8 @@ class WeatherApp extends React.Component {
     super(props);
 
     this.state = {
-      lat: 0,
-      lon: 0,
+      lat: 56.01,
+      lon: 92.79,
       location: "",
       timestamp: "",
 
@@ -29,15 +29,15 @@ class WeatherApp extends React.Component {
       tempMin: "",
       icon: "",
 
-      showResults: true,
-      scaleType: 1 // celsius
+      showResults: false,
+      scaleType: 1, // celsius
+
+      forecasts: []
     };
 
     this.map = {};
     this.marker = {};
     this.config = {
-      initialLat: 56.01,
-      initialLon: 92.79,
       mapZoomLevel: 11,
       openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
     };
@@ -51,14 +51,13 @@ class WeatherApp extends React.Component {
 
   componentDidMount() {
     this.initMap();
-    this.getForecastData(null, this.state.lat, this.state.lon);
+    this.handleUseMyLocation();
   }
 
   fetchForecastData(locationName, lat, lon) {
+    let data;
 
-    var data;
-
-    if (locationName !== null) {
+    if (locationName) {
       data = $.get("http://api.openweathermap.org/data/2.5/weather?q=" + locationName + "&APPID=" + this.config.openWeatherAPIKey);
       return data;
     }
@@ -102,15 +101,20 @@ class WeatherApp extends React.Component {
     return new Date(seconds * 1000)
   }
 
-  handleUseMyLocation(locationName) {
-    this.getForecastData(locationName, null, null);
-  }
-
-  handleCitySearch() {
+  handleUseMyLocation() {
     navigator.geolocation.getCurrentPosition(
       this.geolocationSearchSuccess.bind(this),
       this.geolocationSearchError.bind(this)
     );
+  }
+
+  handleCitySearch(locationName) {
+    if (!locationName) {
+        this.getForecastData(null, 0, 0); // weather planet $)
+        return;
+    }
+
+    this.getForecastData(locationName, null, null);
   }
 
   geolocationSearchSuccess(position) {
@@ -122,7 +126,7 @@ class WeatherApp extends React.Component {
 
   geolocationSearchError(error) {
     if (error.message == "User denied Geolocation") {
-      alert("Please enable location services");
+      this.getForecastData(null, this.state.lat, this.state.lon);
     }
   }
 
@@ -170,7 +174,7 @@ class WeatherApp extends React.Component {
         rightOffset = Math.abs(sidebarWidth - windowWidth),
         mapCenter = this.getOffsetCenter(coordinates, -rightOffset, 0);
 
-      console.log(rightOffset, windowWidth, sidebarWidth);
+      // console.log(rightOffset, windowWidth, sidebarWidth);
 
       if (mapCenter) {
         this.map.setCenter(mapCenter);
@@ -206,9 +210,7 @@ class WeatherApp extends React.Component {
   }
 
   handleChangeTemperatureScale(scaleType) {
-    this.setState({
-      scaleType: scaleType
-    });
+    this.setState({ scaleType: scaleType });
   }
 
   render() {
@@ -220,37 +222,29 @@ class WeatherApp extends React.Component {
               <Form onSearchClick={this.handleCitySearch.bind(this)}
                     onClickUseMyLocation={this.handleUseMyLocation.bind(this)}/>
             </div>
-            <div className="panel-heading text-center">
-               <span className="text-muted">
-                 Enter a place name above,&nbsp;
-                 {/* drag the marker */ }
-                 click directly on the map
-               </span>
-            </div>
-            <div className="panel-heading">
-              <span className="text-muted">
-               Select temperature scale
-              </span>
-              <TemperatureScaleFilter
-                scales={this.temperatureScales}
-                scaleType={this.state.scaleType}
-                onChange={this.handleChangeTemperatureScale.bind(this)}/>
-            </div>
-            <div className="b-city__wrapper">
+            { this.state.showResults ?
+              <div>
+                <div className="b-sidebar__temperature-filter panel-heading">
+                  <span className="text-muted">Select temperature scale:</span>
+                  &nbsp;
+                  <TemperatureScaleFilter
+                    scales={this.temperatureScales}
+                    scaleType={this.state.scaleType}
+                    onChange={this.handleChangeTemperatureScale.bind(this)}/>
+                </div>
 
-              <div className="b-city__list">
-                { this.state.showResults ?
-                  <CityForecast {...this.state} temperatureScales={this.temperatureScales}/>
-                  : null }
+                <div className="b-city__wrapper">
+                  <div className="b-city__list">
+                    <CityForecast {...this.state} temperatureScales={this.temperatureScales}/>
+                  </div>
+                </div>
               </div>
-            </div>
-            <ul className="list-group">
-              <li className="list-group-item">Moscow</li>
-              <li className="list-group-item">Istanbul</li>
-              <li className="list-group-item">Madrid</li>
-              <li className="list-group-item">Venice</li>
-              <li className="list-group-item">Saint Petersburg</li>
-            </ul>
+            : null }
+            {
+              this.state.forecasts.length?
+              <ForecastList />
+              :null
+            }
           </div>
         </div>
         <div ref="map" className="b-map"></div>

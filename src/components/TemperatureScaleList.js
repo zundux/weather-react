@@ -38,7 +38,7 @@ class TemperatureScaleFilter extends React.Component {
     }
 
     return (
-      <div className="btn-toolbar" role="toolbar"
+      <div className="btn-group" role="toolbar"
            aria-label="Temperature scale">
         {scales}
       </div>
