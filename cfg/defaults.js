@@ -1,46 +1,71 @@
 "use strict";
 const path = require("path");
 const srcPath = path.join(__dirname, "/../src");
-const dfltPort = 8000;
+const dfltPort = 8080;
+
+const stylePostCssLoaders = [{
+  loader: 'style-loader'
+}, {
+  loader: 'css-loader'
+}, {
+  loader: 'postcss-loader',
+  options: {
+    plugins: [
+      require("postcss-cssnext"),
+      require("precss")
+    ]
+  }
+}]
+
 function getDefaultModules() {
   return {
-    preLoaders: [{
+    rules: [{
         test: /\.(js|jsx)$/,
         include: srcPath,
-        loader: "eslint-loader"
-      }],
-    loaders: [
-      {
+        enforce: "pre",
+        use: [{
+          loader: "eslint-loader"
+        }]
+      }, {
         test: /\.js?$/,
         include: [
           path.join(__dirname, "/../node_modules/react-native-storage")
         ],
-        loader: "babel",
-        query: {
-          cacheDirectory: true,
-          presets: ["es2015", "stage-1", "react"],
-          plugins: ["transform-runtime"]
+        exclude: /node-modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            cacheDirectory: true,
+            // presets: ["es2015","react", "flow"],
+            plugins: ["transform-runtime"]
+          }
         }
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader!postcss-loader"
+        use: stylePostCssLoaders
       },
       {
-        test: /\.sass/,
-        loader: "style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded&indentedSyntax"
-      },
-      {
-        test: /\.scss/,
-        loader: "style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded"
+        test: /\.s(a|c)ss/,
+        use: [].concat(stylePostCssLoaders, [{
+          loader: 'sass-loader',
+          options: {
+            outputStyle: 'expanded',
+            indentedSyntax: true
+          }
+        }])
       },
       {
         test: /\.less/,
-        loader: "style-loader!css-loader!postcss-loader!less-loader"
+        use: [].concat(stylePostCssLoaders, [{
+          loader: "less-loader"
+        }])
       },
       {
         test: /\.styl/,
-        loader: "style-loader!css-loader!postcss-loader!stylus-loader"
+        use: [].concat(stylePostCssLoaders, [{
+          loader: "stylus-loader"
+        }])
       },
       {
         test: /\.(png|jpg|gif|woff|woff2)$/,
@@ -57,9 +82,5 @@ module.exports = {
   srcPath: srcPath,
   publicPath: "/assets/",
   port: dfltPort,
-  getDefaultModules: getDefaultModules,
-  postcss: function () {
-    return [];
-    // return [require("autoprefixer"), require("precss")];
-  }
+  getDefaultModules: getDefaultModules
 };

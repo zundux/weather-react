@@ -1,7 +1,11 @@
 [ignore]
+./.idea/
+./cfg/
+./dist/
 
 [include]
 
 [libs]
+./node_modules/
 
 [options]

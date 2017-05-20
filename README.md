@@ -3,12 +3,9 @@
 A demo Weather application (React.js)
 
 ##About
-A searchable Weather App using weather data 
-from OpenWeatherMap APIs. 
+A searchable Weather App using weather data
+from OpenWeatherMap APIs.
 Built with ReactJS and Bootstrap.
-
-### Author
-Dmitry Selifanov (Zundux)
 
 ## Build
 - Install dependencies `npm install`

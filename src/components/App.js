@@ -9,7 +9,6 @@ import TemperatureScaleFilter from "./TemperatureScaleList";
 /* global $, google */
 
 class WeatherApp extends React.Component {
-
   constructor(props) {
     super(props);
 
@@ -42,10 +41,21 @@ class WeatherApp extends React.Component {
       openWeatherAPIKey: "8500593fcdaa73da9938b3bd5a9978bf"
     };
 
-    this.temperatureScales = [
-      {id: 0, name: "kelvin", symbol: "K"},
-      {id: 1, name: "celsius", symbol: "℃"},
-      {id: 2, name: "fahrenheit", symbol: "℉"}
+    this.temperatureScales = [{
+        id: 0,
+        name: "kelvin",
+        symbol: "K"
+      },
+      {
+        id: 1,
+        name: "celsius",
+        symbol: "℃"
+      },
+      {
+        id: 2,
+        name: "fahrenheit",
+        symbol: "℉"
+      }
     ];
   }
 
@@ -110,8 +120,8 @@ class WeatherApp extends React.Component {
 
   handleCitySearch(locationName) {
     if (!locationName) {
-        this.getForecastData(null, 0, 0); // weather planet $)
-        return;
+      this.getForecastData(null, 0, 0); // weather on the planet $)
+      return;
     }
 
     this.getForecastData(locationName, null, null);
@@ -164,13 +174,13 @@ class WeatherApp extends React.Component {
   updateMap() {
     var coordinates = new google.maps.LatLng(this.state.lat, this.state.lon);
 
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       this.marker.setPosition(coordinates);
 
       var sidebarWidth = this.refs.sidebarPanel.offsetWidth,
-        windowWidth = window.innerWidth
-          || document.documentElement.clientWidth
-          || document.body.clientWidth,
+        windowWidth = window.innerWidth ||
+        document.documentElement.clientWidth ||
+        document.body.clientWidth,
         rightOffset = Math.abs(sidebarWidth - windowWidth),
         mapCenter = this.getOffsetCenter(coordinates, -rightOffset, 0);
 
@@ -210,10 +220,17 @@ class WeatherApp extends React.Component {
   }
 
   handleChangeTemperatureScale(scaleType) {
-    this.setState({ scaleType: scaleType });
+    this.setState({
+      scaleType: scaleType
+    });
   }
 
   render() {
+    let {
+      showResults,
+      forecasts
+    } = this.state;
+
     return (
       <div className="b-app__container">
         <div className="b-sidebar" ref="sidebarPanel">
@@ -222,7 +239,8 @@ class WeatherApp extends React.Component {
               <Form onSearchClick={this.handleCitySearch.bind(this)}
                     onClickUseMyLocation={this.handleUseMyLocation.bind(this)}/>
             </div>
-            { this.state.showResults ?
+
+            { showResults ?
               <div>
                 <div className="b-sidebar__temperature-filter panel-heading">
                   <span className="text-muted">Select temperature scale:</span>
@@ -240,11 +258,8 @@ class WeatherApp extends React.Component {
                 </div>
               </div>
             : null }
-            {
-              this.state.forecasts.length?
-              <ForecastList />
-              :null
-            }
+
+            { forecasts.length ? <ForecastList /> : null }
           </div>
         </div>
         <div ref="map" className="b-map"></div>

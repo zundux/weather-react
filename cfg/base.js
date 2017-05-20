@@ -11,9 +11,8 @@ let defaultSettings = require("./defaults");
 let additionalPaths = [];
 
 module.exports = {
-  additionalPaths: additionalPaths,
-  port: defaultSettings.port,
-  debug: true,
+  // additionalPaths: additionalPaths,
+  // port: defaultSettings.port,
   devtool: "eval",
   externals: {
     "react-native": {}
@@ -32,7 +31,7 @@ module.exports = {
     noInfo: true
   },
   resolve: {
-    extensions: ["", ".js", ".jsx"],
+    extensions: [".js", ".jsx"],
     alias: {
       actions: `${defaultSettings.srcPath}/actions/`,
       components: `${defaultSettings.srcPath}/components/`,
